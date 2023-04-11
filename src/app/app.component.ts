@@ -1,5 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import { AppService } from './app.service';
 
 @Component({
   selector: 'app-root',
@@ -12,78 +13,15 @@ export class AppComponent {
     name: ["", Validators.required],
     phone: ["", Validators.required],
     car: ["", Validators.required],
-  })
+  });
+  
+  carsData: any;
 
-  carsData = [
-    {
-      image: "1.png",
-      name: "Lamborghini Huracan Spyder",
-      gear: "Полный",
-      engine: 5.2,
-      years: 2019
-    },
-    {
-      image: "2.png",
-      name: "Chevrolet Corvette",
-      gear: "Полный",
-      engine: 6.2,
-      years: 2017
-    },
-    {
-      image: "3.png",
-      name: "Ferrari California",
-      gear: "Полный",
-      engine: 3.9,
-      years: 2010
-    },
-    {
-      image: "4.png",
-      name: "Lamborghini Urus",
-      gear: "Полный",
-      engine: 4.0,
-      years: 2010
-    },
-    {
-      image: "5.png",
-      name: "Audi R8",
-      gear: "Полный",
-      engine: 5.2,
-      years: 2018
-    },
-    {
-      image: "6.png",
-      name: "Chevrolet Camaro",
-      gear: "Полный",
-      engine: 2.0,
-      years: 2019
-    },
-    {
-      image: "7.png",
-      name: "Maserati Quattroporte",
-      gear: "Полный",
-      engine: 3.0,
-      years: 2018
-    },
-    {
-      image: "8.png",
-      name: "Dodge Challanger",
-      gear: "Полный",
-      engine: 6.4,
-      years: 2019
-    },
-    {
-      image: "9.png",
-      name: "Nissan GT-R",
-      gear: "Полный",
-      engine: 3.8,
-      years: 2019
-    },
-  ];
-
-
-
-  constructor(private fb: FormBuilder){
-
+  constructor(private fb: FormBuilder, private appService: AppService){
+    
+  }
+  ngOnInit(){
+    this.appService.getData().subscribe(carsData => this.carsData = carsData);
   }
 
   goScroll(target: HTMLElement, car?: any) {
@@ -108,8 +46,21 @@ export class AppComponent {
   
   onSubmit(){
     if(this.priceForm.valid){
-      alert("Спасибо за заявку, мы свяжемся с Вами в ближайшее время");
-      this.priceForm.reset();
-    }
+      this.appService.sendQuery(this.priceForm.value)
+      // .subscribe(result => console.log(result));//резлутат запроса выводился в консоль
+      .subscribe(
+        {
+          next: (response: any) => {
+                  alert(response.message);
+                  this.priceForm.reset();
+          },
+          error: (response) => {
+            alert(response.error.message);
+          }
+        }
+
+      )
+    } 
+
   }
 }; 
